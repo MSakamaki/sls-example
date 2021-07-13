@@ -35,6 +35,9 @@ testem.log
 /typings
 
 # System Files
+.cache
 .DS_Store
 Thumbs.db
 .serverless
+build.sh
+

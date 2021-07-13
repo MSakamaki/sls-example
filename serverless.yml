@@ -4,6 +4,9 @@ provider:
   runtime: nodejs14.x
   stage: ${self:custom.stage}
   region: ap-northeast-1
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
 custom:
   bucketName: sls-example-${self:custom.stage}
   defaultEnvironmentGroup: dev
@@ -34,7 +37,17 @@ package:
   exclude:
     - ./**
   include:
-    - ./src/**
+    - ./dist/**
+functions:
+  serverlessTest:
+    handler: dist/index.default
+    events:
+      - http: 
+          path: /api/{proxy+}
+          method: ANY
+          response:
+            headers:
+              Content-Type: "'application/json'"
 resources:
   Resources:
     DefaultCachePolicy:
@@ -62,6 +75,25 @@ resources:
           HttpVersion: http2
           PriceClass: PriceClass_200
           DefaultRootObject: index.html
+          CacheBehaviors:
+            - PathPattern: /api/*
+              TargetOriginId: apiGatewayOrigin-${self:custom.stage}
+              AllowedMethods:
+                - GET
+                - HEAD
+                - OPTIONS
+                - PUT
+                - POST
+                - PATCH
+                - DELETE
+              CachedMethods:
+                - HEAD
+                - GET
+              Compress: true
+              ForwardedValues:
+                QueryString: true
+              SmoothStreaming: false
+              ViewerProtocolPolicy: redirect-to-https
           DefaultCacheBehavior:
             Compress: true
             CachePolicyId: !Ref DefaultCachePolicy
@@ -74,6 +106,16 @@ resources:
               Cookies:
                 Forward: none
           Origins:
+            - Id: apiGatewayOrigin-${self:custom.stage}
+              DomainName: !Join
+                - "."
+                - - !Ref ApiGatewayRestApi
+                  - execute-api
+                  - !Ref AWS::Region
+                  - amazonaws.com
+              OriginPath: /${self:custom.stage}
+              CustomOriginConfig:
+                OriginProtocolPolicy: "https-only"
             - Id: ${self:custom.bucketName}.s3.ap-northeast-1.amazonaws.com
               # If it is less than 24 hours, you need to attach a region to the resource.
               DomainName:
