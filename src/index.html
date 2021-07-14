@@ -7,14 +7,7 @@
   <title>Document</title>
   <script>
     fetch('/api/users')
-    .then(response => response.text())
-    .then(text => {
-      try {
-        return JSON.parse(text);
-      }catch {
-        return JSON.parse(atob(text));
-      }
-    })
+    .then(response => response.json())
     .then(data => {
       data.forEach(user => {
         const users = document.querySelector('#users');

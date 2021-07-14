@@ -14,4 +14,6 @@ npm run build
 npx sls deploy --aws-profile [profile] --stage [sha hash]
 
 npx sls deploy --aws-profile me --stage test
+npx sls remove --aws-profile me --stage test
+
 ```
