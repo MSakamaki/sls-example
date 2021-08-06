@@ -1,5 +1,7 @@
 # sls-example
 
+serverless java springboot2 maven example
+
 ## local run
 
 ```sh
