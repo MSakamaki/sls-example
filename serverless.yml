@@ -13,7 +13,7 @@ custom:
   stage: ${opt:stage, self:custom.defaultEnvironmentGroup}
   s3Sync:
     - bucketName: sls-example-${self:custom.stage}
-      localDir: src
+      localDir: public
       params:
         - '**/*.html':
             CacheControl: 'no-store'
@@ -34,16 +34,20 @@ custom:
 plugins:
   - serverless-s3-sync
 package:
-  exclude:
-    - ./**
-  include:
-    - ./dist/**
+  artifact: target/serverless-springboot2-example-1.0-SNAPSHOT-lambda-package.zip
 functions:
   serverlessTest:
-    handler: dist/index.default
+    handler: com.amazonaws.serverless.sample.springboot2.StreamLambdaHandler
+    runtime: java8
     events:
-      - http: 
-          path: /api/{proxy+}
+      - http:
+          path: /pets
+          method: ANY
+          response:
+            headers:
+              Content-Type: "'application/json'"
+      - http:
+          path: /pets/{proxy+}
           method: ANY
           response:
             headers:
@@ -76,7 +80,7 @@ resources:
           PriceClass: PriceClass_200
           DefaultRootObject: index.html
           CacheBehaviors:
-            - PathPattern: /api/*
+            - PathPattern: /pets*
               TargetOriginId: apiGatewayOrigin-${self:custom.stage}
               AllowedMethods:
                 - GET
@@ -121,7 +125,7 @@ resources:
               DomainName:
                 # https://sls-example-test.s3-ap-northeast-1.amazonaws.com/
                 sls-example-${self:custom.stage}.s3-ap-northeast-1.amazonaws.com
-                # Fn::GetAtt: [StaticContentsS3, DomainName]
+              # Fn::GetAtt: [StaticContentsS3, DomainName]
               S3OriginConfig:
                 OriginAccessIdentity:
                   Fn::Join:
