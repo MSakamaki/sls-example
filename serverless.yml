@@ -229,7 +229,7 @@ resources:
     DBInstance1:
       Type: AWS::RDS::DBInstance
       Properties:
-        DBName: sls-db-${self:custom.stage}
+        DBInstanceIdentifier : sls-db-${self:custom.stage}
         MasterUsername: cell
         MasterUserPassword: cellpj123
         AllocatedStorage: 20
