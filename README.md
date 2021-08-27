@@ -13,6 +13,10 @@ npx ts-node ./functions/local.ts
 ```sh
 npm run build
 
+mvn clean
+mvn clean package
+mvn clean install
+
 npx sls deploy --aws-profile [profile] --stage [sha hash]
 
 npx sls deploy --aws-profile me --stage test
