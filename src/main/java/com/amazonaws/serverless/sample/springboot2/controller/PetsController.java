@@ -14,9 +14,15 @@ package com.amazonaws.serverless.sample.springboot2.controller;
 
 
 
+import com.amazonaws.serverless.sample.springboot2.database.PetsStoreEntity;
+import com.amazonaws.serverless.sample.springboot2.database.PetsStoreRepository;
 import com.amazonaws.serverless.sample.springboot2.model.Pet;
 import com.amazonaws.serverless.sample.springboot2.model.PetData;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import javax.ws.rs.PathParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +38,10 @@ import java.util.UUID;
 @RestController
 @EnableWebMvc
 public class PetsController {
+
+    @Autowired
+    PetsStoreRepository petsStoreRepository;
+
     @RequestMapping(path = "/pets", method = RequestMethod.POST)
     public Pet createPet(@RequestBody Pet newPet) {
         if (newPet.getName() == null || newPet.getBreed() == null) {
@@ -65,12 +75,14 @@ public class PetsController {
     }
 
     @RequestMapping(path = "/pets/{petId}", method = RequestMethod.GET)
-    public Pet listPets() {
+    public Pet listPets(@PathParam("petId") String petId) throws ParseException {
+        PetsStoreEntity entity = petsStoreRepository.findByPetId(petId);
+
         Pet newPet = new Pet();
         newPet.setId(UUID.randomUUID().toString());
-        newPet.setBreed(PetData.getRandomBreed());
-        newPet.setDateOfBirth(PetData.getRandomDoB());
-        newPet.setName(PetData.getRandomName());
+        newPet.setBreed(entity.getBreeds());
+        newPet.setDateOfBirth(new SimpleDateFormat("yyyy/MM/dd").parse(entity.getDateOfBirth()));
+        newPet.setName(entity.getName());
         return newPet;
     }
 
