@@ -7,6 +7,15 @@ provider:
   apiGateway:
     binaryMediaTypes:
       - '*/*'
+  environment:
+    memcachedEndpoint:
+      "Fn::Join": [":", ["Fn::GetAtt": [ServerlessElasticacheCluster, ConfigurationEndpoint.Address], "Fn::GetAtt": [ServerlessElasticacheCluster, ConfigurationEndpoint.Port]]]
+    postgresEndpoint:
+      "Fn::Join": [":", ["Fn::GetAtt": [ServerlessRDSCluster, Endpoint.Address], "Fn::GetAtt": [ServerlessRDSCluster, Endpoint.Port]]]
+    databasedbname: "managed"
+    username: "cell"
+    password: "cellpj123"
+
 custom:
   bucketName: sls-example-${self:custom.stage}
   defaultEnvironmentGroup: dev
@@ -39,6 +48,12 @@ functions:
   serverlessTest:
     handler: com.amazonaws.serverless.sample.springboot2.StreamLambdaHandler
     runtime: java8
+    vpc:
+      securityGroupIds:
+        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
+      subnetIds:
+        - Ref: ServerlessSubnetA
+        - Ref: ServerlessSubnetC
     events:
       - http:
           path: /pets
@@ -53,6 +68,7 @@ functions:
             headers:
               Content-Type: "'application/json'"
 resources:
+  - ${file(/RdsProxyResources.yml)}
   Resources:
     DefaultCachePolicy:
       Type: 'AWS::CloudFront::CachePolicy'
@@ -229,6 +245,7 @@ resources:
     DBInstance1:
       Type: AWS::RDS::DBInstance
       Properties:
+        DBName: managed
         DBInstanceIdentifier : sls-db-${self:custom.stage}
         MasterUsername: cell
         MasterUserPassword: cellpj123
