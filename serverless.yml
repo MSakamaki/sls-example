@@ -12,9 +12,9 @@ provider:
       "Fn::Join": [":", ["Fn::GetAtt": [ServerlessElasticacheCluster, ConfigurationEndpoint.Address], "Fn::GetAtt": [ServerlessElasticacheCluster, ConfigurationEndpoint.Port]]]
     postgresEndpoint:
       "Fn::Join": [":", ["Fn::GetAtt": [ServerlessRDSCluster, Endpoint.Address], "Fn::GetAtt": [ServerlessRDSCluster, Endpoint.Port]]]
-    databasedbname: "managed"
-    username: "cell"
-    password: "cellpj123"
+    databasedbname: "petstore"
+    username: "pets"
+    password: "Be49jFLw"
 
 custom:
   bucketName: sls-example-${self:custom.stage}
@@ -245,10 +245,10 @@ resources:
     DBInstance1:
       Type: AWS::RDS::DBInstance
       Properties:
-        DBName: managed
+        DBName: petstore
         DBInstanceIdentifier : sls-db-${self:custom.stage}
-        MasterUsername: cell
-        MasterUserPassword: cellpj123
+        MasterUsername: pets
+        MasterUserPassword: Be49jFLw
         AllocatedStorage: 20
         Engine: postgres
         EngineVersion: "11.8"
